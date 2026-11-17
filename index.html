@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pokédex Caacupe</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #4040F2;
+      color: #f5f5f5;
+      min-height: 100vh;
+    }
+
+    /* ========================================
+       INTRO · Pokebola que cae y se abre
+       ======================================== */
+    .intro {
+      position: fixed;
+      inset: 0;
+      background: #4040F2;
+      display: grid;
+      place-items: center;
+      z-index: 100;
+      animation: introOut 0.6s 1.3s ease-in forwards;
+    }
+
+    @keyframes introOut {
+      to { opacity: 0; visibility: hidden; }
+    }
+
+    .ball {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      animation: ballDrop 0.6s cubic-bezier(.34, 1.56, .64, 1);
+    }
+
+    @keyframes ballDrop {
+      from { transform: translateY(-260px); opacity: 0; }
+      to   { transform: translateY(0);      opacity: 1; }
+    }
+
+    .ball-top,
+    .ball-bottom {
+      position: absolute;
+      left: 0;
+      width: 140px;
+      height: 70px;
+      border: 6px solid #111;
+    }
+
+    .ball-top {
+      top: 0;
+      background: #ee1515;
+      border-radius: 140px 140px 0 0;
+      border-bottom: none;
+      transform-origin: bottom center;
+      animation: openTop 0.35s 0.9s ease-out forwards;
+    }
+
+    .ball-bottom {
+      bottom: 0;
+      background: #f5f5f5;
+      border-radius: 0 0 140px 140px;
+      border-top: none;
+      transform-origin: top center;
+      animation: openBottom 0.35s 0.9s ease-out forwards;
+    }
+
+    @keyframes openTop    { to { transform: rotate(-110deg) translateY(-8px); } }
+    @keyframes openBottom { to { transform: rotate(110deg)  translateY(8px);  } }
+
+    .ball-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 40px;
+      height: 40px;
+      margin: -20px;
+      border-radius: 50%;
+      background: white;
+      border: 5px solid #111;
+      z-index: 2;
+      animation: centerFade 0.25s 0.9s forwards;
+    }
+
+    @keyframes centerFade {
+      to { transform: scale(0); opacity: 0; }
+    }
+
+    .flash {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 100px;
+      height: 100px;
+      margin: -50px;
+      border-radius: 50%;
+      background: #fff;
+      transform: scale(0);
+      z-index: 3;
+      animation: flash 0.6s 0.95s ease-out forwards;
+    }
+
+    @keyframes flash {
+      60%  { opacity: 1; }
+      100% { transform: scale(30); opacity: 0; }
+    }
+
+    /* ========================================
+       HEADER Y LOGO
+       ======================================== */
+    .header {
+      display: flex;
+      justify-content: center;
+      padding: 30px 20px 10px;
+      /* Aparece desvaneciéndose justo después de que la pokebola se abre */
+      opacity: 0;
+      animation: fadeInDown 0.8s 1.4s ease-out forwards;
+    }
+
+    .logo {
+      width: 100%;
+      max-width: 500px; /* Ajusta este tamaño según qué tan grande quieras el logo */
+      height: auto;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4));
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ========================================
+       GALERÍA
+       ======================================== */
+    .galeria {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 18px;
+      padding: 20px 24px 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .carta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      opacity: 0;
+      animation: cardPop 0.5s ease-out forwards;
+    }
+
+    .carta {
+      aspect-ratio: 63 / 88;
+      border: none;
+      padding: 0;
+      background: #2a2a30;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,.35);
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .carta:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(238,21,21,.35);
+    }
+
+    .carta img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .autor {
+      font-size: 0.8rem;
+      color: #b8b8c0;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    @keyframes cardPop {
+      0%   { transform: scale(0.1) rotate(-15deg); opacity: 0; }
+      60%  { transform: scale(1.08) rotate(2deg);  opacity: 1; }
+      100% { transform: scale(1) rotate(0);        opacity: 1; }
+    }
+
+    /* ========================================
+       ZOOM
+       ======================================== */
+    .zoom {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 200;
+      cursor: zoom-out;
+    }
+
+    .zoom.oculto { display: none; }
+
+    .zoom img {
+      max-width: min(90vw, 500px);
+      max-height: 85vh;
+      border-radius: 14px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.6);
+      animation: zoomPop .25s ease;
+    }
+
+    @keyframes zoomPop {
+      from { transform: scale(.9); opacity: 0; }
+      to   { transform: scale(1);  opacity: 1; }
+    }
+
+    /* Accesibilidad */
+    @media (prefers-reduced-motion: reduce) {
+      .intro { display: none; }
+      .header { opacity: 1; animation: none; }
+      .carta-item { opacity: 1; animation: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. Animación de Pokebola -->
+  <div class="intro">
+    <div class="ball">
+      <div class="ball-top"></div>
+      <div class="ball-bottom"></div>
+      <div class="ball-center"></div>
+      <div class="flash"></div>
+    </div>
+  </div>
+
+  <!-- 2. Logo de la clase -->
+  <header class="header">
+    <img src="img/logo.png" alt="Pokédex Caacupe" class="logo">
+  </header>
+
+  <!-- 3. Galería -->
+  <main id="galeria" class="galeria"></main>
+
+  <!-- 4. Visor de imagen -->
+  <div id="zoom" class="zoom oculto">
+    <img id="zoom-img" alt="">
+  </div>
+
+  <script>
+    // -------- Datos (editar acá) --------
+    const cartas = [
+      { archivo: 'vaca-marina.png', autor: 'Ana - 7°TM'   },
+      { archivo: 'dodo.png', autor: 'Leo - 7°TM'   },
+      { archivo: 'guara-malvinas.png', autor: 'Sofía - 7°TM' },
+      { archivo: 'mamut-lanudo-1.png', autor: 'Byron Sudo - 7°TM'   },
+      { archivo: 'bandicut.png', autor: 'Leo - 7°TM'   },
+      { archivo: 'dientes-de-sable-1.png', autor: 'Agustín Cortés - 7°TM' },
+      { archivo: 'Tilacino.png', autor: 'Facundo Benitez - 7°TM'   },
+      { archivo: 'dientes-de-sable-2.png', autor: 'Sofía - 7°TM' },
+      { archivo: 'megalopodis.png', autor: 'Leo - 7°TM'   },
+      { archivo: 'foca-monja.png', autor: 'Leire Rodríguez - 7°TM' },
+      { archivo: 'rana-dorada.png', autor: 'Leo - 7°TM'   },
+      { archivo: 'dientes-de-sable-2.png', autor: 'Sofía - 7°TM' },
+      // ...agrega todas las que tengas
+    ];
+
+    // -------- Render --------
+    const galeria = document.getElementById('galeria');
+
+    galeria.innerHTML = cartas.map(c => {
+      const nombre = nombreDesdeArchivo(c.archivo);
+      const autorHtml = c.autor ? `<p class="autor">por ${c.autor}</p>` : '';
+      
+      return `
+        <div class="carta-item">
+          <button class="carta" data-archivo="${c.archivo}" title="${nombre}">
+            <img src="img/${c.archivo}" alt="Carta de ${nombre}" loading="lazy">
+          </button>
+          ${autorHtml}
+        </div>
+      `;
+    }).join('');
+
+    // -------- Animación escalonada --------
+    // Empiezan justo cuando el logo termina de aparecer (1.4s)
+    galeria.querySelectorAll('.carta-item').forEach((el, i) => {
+      el.style.animationDelay = (1.5 + Math.min(i * 0.05, 1.0)) + 's';
+    });
+
+    // -------- Zoom --------
+    const zoom    = document.getElementById('zoom');
+    const zoomImg = document.getElementById('zoom-img');
+
+    galeria.addEventListener('click', e => {
+      const carta = e.target.closest('.carta');
+      if (!carta) return;
+      zoomImg.src = 'img/' + carta.dataset.archivo;
+      zoomImg.alt = carta.title;
+      zoom.classList.remove('oculto');
+    });
+
+    zoom.addEventListener('click', () => zoom.classList.add('oculto'));
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') zoom.classList.add('oculto');
+    });
+
+    // -------- Utilidad para sacar el nombre --------
+    function nombreDesdeArchivo(archivo) {
+      const base = archivo.replace(/\.(jpg|jpeg|png|webp)$/i, '');
+      const match = base.match(/-([^-]+)$/);
+      const nombre = match ? match[1] : base;
+      return nombre.charAt(0).toUpperCase() + nombre.slice(1);
+    }
+  </script>
+</body>
+</html>
