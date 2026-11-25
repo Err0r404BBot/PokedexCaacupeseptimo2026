@@ -20,7 +20,7 @@
     .intro {
       position: fixed;
       inset: 0;
-      background: #4040F2;
+      background: #4040F2;;
       display: grid;
       place-items: center;
       z-index: 100;
@@ -111,37 +111,148 @@
     }
 
     /* ========================================
-       HEADER Y LOGO
+       UTILIDADES
        ======================================== */
-    .header {
+    .oculto { display: none !important; }
+
+    /* ========================================
+       MENÚ DE TURNOS (Pantalla Inicial)
+       ======================================== */
+    .menu {
       display: flex;
+      flex-direction: column;
+      align-items: center;
       justify-content: center;
-      padding: 30px 20px 10px;
-      /* Aparece desvaneciéndose justo después de que la pokebola se abre */
+      min-height: 100vh;
+      padding: 20px;
       opacity: 0;
-      animation: fadeInDown 0.8s 1.4s ease-out forwards;
+      animation: fadeIn 0.8s 1.4s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     .logo {
       width: 100%;
-      max-width: 500px; /* Ajusta este tamaño según qué tan grande quieras el logo */
+      max-width: 450px;
       height: auto;
+      margin-bottom: 40px;
       filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4));
     }
 
-    @keyframes fadeInDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to   { opacity: 1; transform: translateY(0); }
+    .botones-turnos {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
+    .btn-turno {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: #070cff;
+      border: 3px solid #1e4b99;
+      padding: 15px 30px;
+      border-radius: 20px;
+      color: white;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+
+    .btn-turno:hover {
+      transform: translateY(-5px) scale(1.05);
+      border-color: #fff;
+      box-shadow: 0 12px 25px rgba(0,0,0,0.5);
+    }
+
+    /* Pokebolas de los botones */
+    .pokebola-mini {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      border: 3px solid #111;
+      position: relative;
+      overflow: hidden;
+      background: #f5f5f5; 
+    }
+
+    .pokebola-mini::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 50%;
+      border-bottom: 3px solid #111;
+    }
+
+    .pokebola-mini::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 14px;
+      height: 14px;
+      background: white;
+      border: 3px solid #111;
+      border-radius: 50%;
+      z-index: 2;
+    }
+
+    /* Colores personalizados de las Pokebolas */
+    .pk-manana::before { background: #FFCB05; } /* Amarillo */
+    .pk-tarde::before  { background: #3B4CCA; } /* Azul */
+
     /* ========================================
-       GALERÍA
+       GALERÍA Y HEADER
        ======================================== */
+    .seccion-galeria {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    .header-galeria {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      background: #222226;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .btn-volver {
+      background: #ee1515;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 99px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-volver:hover { background: #b81010; }
+
+    .titulo-turno {
+      font-size: 1.2rem;
+      color: #FFCB05;
+    }
+
     .galeria {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
       gap: 18px;
-      padding: 20px 24px 40px;
+      padding: 28px 24px;
       max-width: 1200px;
       margin: 0 auto;
     }
@@ -208,8 +319,6 @@
       cursor: zoom-out;
     }
 
-    .zoom.oculto { display: none; }
-
     .zoom img {
       max-width: min(90vw, 500px);
       max-height: 85vh;
@@ -225,9 +334,14 @@
 
     /* Accesibilidad */
     @media (prefers-reduced-motion: reduce) {
-      .intro { display: none; }
-      .header { opacity: 1; animation: none; }
+      .intro, .menu, .seccion-galeria { opacity: 1; animation: none; }
       .carta-item { opacity: 1; animation: none; }
+      .intro { display: none; }
+    }
+
+    @media (max-width: 600px) {
+      .botones-turnos { flex-direction: column; width: 100%; max-width: 300px; }
+      .btn-turno { justify-content: center; width: 100%; }
     }
   </style>
 </head>
@@ -243,13 +357,34 @@
     </div>
   </div>
 
-  <!-- 2. Logo de la clase -->
-  <header class="header">
+  <!-- 2. Menú de Turnos -->
+  <section id="menu-turnos" class="menu">
     <img src="img/logo.png" alt="Pokédex Caacupe" class="logo">
-  </header>
+    
+    <div class="botones-turnos">
+      <!-- Botón Mañana -->
+      <button class="btn-turno btn-manana" data-turno="mañana">
+        <div class="pokebola-mini pk-manana"></div>
+        Turno Mañana
+      </button>
+      
+      <!-- Botón Tarde -->
+      <button class="btn-turno btn-tarde" data-turno="tarde">
+        <div class="pokebola-mini pk-tarde"></div>
+        Turno Tarde
+      </button>
+    </div>
+  </section>
 
-  <!-- 3. Galería -->
-  <main id="galeria" class="galeria"></main>
+  <!-- 3. Sección de Galería -->
+  <section id="seccion-galeria" class="seccion-galeria oculto">
+    <header class="header-galeria">
+      <button id="btn-volver" class="btn-volver">← Volver al menú</button>
+      <h2 id="titulo-turno" class="titulo-turno">Turno</h2>
+    </header>
+
+    <main id="galeria" class="galeria"></main>
+  </section>
 
   <!-- 4. Visor de imagen -->
   <div id="zoom" class="zoom oculto">
@@ -257,57 +392,93 @@
   </div>
 
   <script>
-    // -------- Datos (editar acá) --------
+    // -------- Datos (Editar acá agregando el campo "turno") --------
+    // turno: 'mañana' o 'tarde'
     const cartas = [
-      { archivo: 'vaca-marina.png', autor: 'Ana - 7°TM'   },
-      { archivo: 'dodo.png', autor: 'Valentino Alonso - 7°TM'   },
-      { archivo: 'guara-malvinas.png', autor: 'Luna Miranda - 7°TM' },
-      { archivo: 'mamut-lanudo-1.png', autor: 'Byron Sudo - 7°TM'   },
-      { archivo: 'bandicut.png', autor: 'Benjamín Valdez - 7°TM'   },
-      { archivo: 'dientes-de-sable-1.png', autor: 'Agustín Cortés - 7°TM' },
-      { archivo: 'Tilacino.png', autor: 'Facundo Benitez - 7°TM'   },
-      { archivo: 'dientes-de-sable-2.png', autor: 'Genesis Mancuello - 7°TM' },
-      { archivo: 'megalopodis.png', autor: 'Oliver Sanchez - 7°TM'},
-      { archivo: 'foca-monja.png', autor: 'Leire Rodríguez - 7°TM' },
-      { archivo: 'rana-dorada.png', autor: 'Rocio Delvalle - 7°TM'},
-      { archivo: 'megalodon.png', autor: 'Ian Duarte - 7°TM'},
-      { archivo: 'pez-remo-chino-1.png', autor: 'Esteban Duarte - 7°TM'},
-      { archivo: 'tortuga.png', autor: 'Génesis Aguinagalde - 7°TM'},
-      { archivo: 'pez-remo-chino-2.png', autor: 'Elizabeth Martinez - 7°TM' },
-      { archivo: 'lobo-malvinas.png', autor: 'Lian Gutierrez - 7°TM'},
-      { archivo: 'Pinguino.png', autor: 'Ian Ferreyra - 7°TM'},
-      { archivo: 'Tigre-3png', autor: 'León Martínez - 7°TM'},
-      { archivo: 'podiceps.png', autor: 'Franco Paiva - 7°TM' },
+      {archivo: 'dodo.png', autor: 'Valentino Alonso',turno: 'mañana' },
+      {archivo: 'guara-malvinas.png', autor: 'Luna Miranda',turno: 'mañana' },
+      {archivo: 'mamut-lanudo-1.png', autor: 'Byron Sudo ', turno: 'mañana'  },
+      {archivo: 'bandicut.png', autor: 'Benjamín Valdez ', turno: 'mañana' }
+      {archivo: 'dientes-de-sable-1.png', autor: 'Agustín Cortés', turno: 'mañana' }
+      {archivo: 'Tilacino.png', autor: 'Facundo Benitez', turno: 'mañana' }
+      { archivo: 'dientes-de-sable-2.png', autor: 'Genesis Mancuello',turno: 'mañana' },
+      { archivo: 'megalopodis.png', autor: 'Oliver Sanchez',turno: 'mañana'},
+      { archivo: 'foca-monja.png', autor: 'Leire Rodríguez',turno: 'mañana' },
+      { archivo: 'rana-dorada.png', autor: 'Rocio Delvalle',turno: 'mañana'},
+      { archivo: 'megalodon.png', autor: 'Ian Duarte',turno: 'mañana'},
+      { archivo: 'pez-remo-chino-1.png', autor: 'Esteban Duarte',turno: 'mañana'},
+      { archivo: 'tortuga.png', autor: 'Génesis Aguinagalde',turno: 'mañana'},
+      { archivo: 'pez-remo-chino-2.png', autor: 'Elizabeth Martinez',turno: 'mañana' },
+      { archivo: 'lobo-malvinas.png', autor: 'Lian Gutierrez',turno: 'mañana'},
+      { archivo: 'Pinguino.png', autor: 'Ian Ferreyra',turno: 'mañana'},
+      { archivo: 'Tigre-3png', autor: 'León Martínez',turno: 'mañana'},
+      { archivo: 'podiceps.png', autor: 'Franco Paiva',turno: 'mañana' },
+
+    
+       {archivo: 'vaca-marina.png', autor: 'Ana',turno: 'tarde'  },
       // ...agrega todas las que tengas
     ];
 
-    // -------- Render --------
+    // -------- Referencias al DOM --------
+    const menuTurnos = document.getElementById('menu-turnos');
+    const seccionGaleria = document.getElementById('seccion-galeria');
     const galeria = document.getElementById('galeria');
-
-    galeria.innerHTML = cartas.map(c => {
-      const nombre = nombreDesdeArchivo(c.archivo);
-      const autorHtml = c.autor ? `<p class="autor">por ${c.autor}</p>` : '';
-      
-      return `
-        <div class="carta-item">
-          <button class="carta" data-archivo="${c.archivo}" title="${nombre}">
-            <img src="img/${c.archivo}" alt="Carta de ${nombre}" loading="lazy">
-          </button>
-          ${autorHtml}
-        </div>
-      `;
-    }).join('');
-
-    // -------- Animación escalonada --------
-    // Empiezan justo cuando el logo termina de aparecer (1.4s)
-    galeria.querySelectorAll('.carta-item').forEach((el, i) => {
-      el.style.animationDelay = (1.5 + Math.min(i * 0.05, 1.0)) + 's';
-    });
-
-    // -------- Zoom --------
+    const tituloTurno = document.getElementById('titulo-turno');
+    const btnVolver = document.getElementById('btn-volver');
+    
     const zoom    = document.getElementById('zoom');
     const zoomImg = document.getElementById('zoom-img');
 
+    // -------- Funciones --------
+    
+    // Filtrar y mostrar galería
+    function mostrarGaleria(turno) {
+      // 1. Ocultar menú, mostrar galería
+      menuTurnos.classList.add('oculto');
+      seccionGaleria.classList.remove('oculto');
+      
+      // 2. Poner el título correcto
+      tituloTurno.textContent = turno === 'mañana' ? 'Turno Mañana' : 'Turno Tarde';
+
+      // 3. Filtrar cartas de ese turno
+      const cartasTurno = cartas.filter(c => c.turno === turno);
+
+      // 4. Renderizar
+      galeria.innerHTML = cartasTurno.map(c => {
+        const nombre = nombreDesdeArchivo(c.archivo);
+        const autorHtml = c.autor ? `<p class="autor">por ${c.autor}</p>` : '';
+        
+        return `
+          <div class="carta-item">
+            <button class="carta" data-archivo="${c.archivo}" title="${nombre}">
+              <img src="img/${c.archivo}" alt="Carta de ${nombre}" loading="lazy">
+            </button>
+            ${autorHtml}
+          </div>
+        `;
+      }).join('');
+
+      // 5. Aplicar animación escalonada (rápida porque ya están dentro del sitio)
+      galeria.querySelectorAll('.carta-item').forEach((el, i) => {
+        el.style.animationDelay = (i * 0.05) + 's';
+      });
+    }
+
+    // Eventos de los botones de turno
+    document.querySelectorAll('.btn-turno').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const turno = e.currentTarget.dataset.turno;
+        mostrarGaleria(turno);
+      });
+    });
+
+    // Botón Volver
+    btnVolver.addEventListener('click', () => {
+      seccionGaleria.classList.add('oculto');
+      menuTurnos.classList.remove('oculto');
+    });
+
+    // Lógica del Zoom
     galeria.addEventListener('click', e => {
       const carta = e.target.closest('.carta');
       if (!carta) return;
@@ -321,7 +492,7 @@
       if (e.key === 'Escape') zoom.classList.add('oculto');
     });
 
-    // -------- Utilidad para sacar el nombre --------
+    // Utilidad
     function nombreDesdeArchivo(archivo) {
       const base = archivo.replace(/\.(jpg|jpeg|png|webp)$/i, '');
       const match = base.match(/-([^-]+)$/);
